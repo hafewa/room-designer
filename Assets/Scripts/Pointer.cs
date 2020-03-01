@@ -1,107 +1,84 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
 public class Pointer : MonoBehaviour {
-    public UnityAction<Vector3, RaycastHit> onPointerUpdate = null;
+    public static UnityAction<Vector3, RaycastHit> OnPointerUpdate;
 
-    public float m_Distance = 10.0f;
-    public LayerMask m_EverythingMask = 0;
-    public LayerMask m_InteractableMask = 0;
+    public float distance = 10.0f;
+    public LayerMask everythingMask = 0;
 
-    private Transform m_CurrentOrigin = null;
-    private GameObject m_CurrentObject = null;
-    private LineRenderer m_LineRenderer = null;
+    private Transform _currentOrigin;
+    private GameObject _currentObject;
+    private LineRenderer _lineRenderer;
 
     private void Awake()
     {
-        PlayerEvents.onControllerSource += UpdateOrigin;
-        PlayerEvents.onTouchPadDown += ProcessTouchpadDown;
-        PlayerEvents.onTouchPadUp += ProcessTouchpadUp;
+        PlayerEvents.OnControllerSource += UpdateOrigin;
     }
 
     private void Start()
     {
         SetLineColor();
-        m_LineRenderer = gameObject.GetComponentInChildren<LineRenderer>();
+        _lineRenderer = gameObject.GetComponentInChildren<LineRenderer>();
     }
 
     private void OnDestroy()
     {
-        PlayerEvents.onControllerSource -= UpdateOrigin;
-        PlayerEvents.onTouchPadDown -= ProcessTouchpadDown;
-        PlayerEvents.onTouchPadUp -= ProcessTouchpadUp;
+        PlayerEvents.OnControllerSource -= UpdateOrigin;
     }
 
     private void Update()
     {
-        RaycastHit hit;
-        Vector3 hitPoint = UpdateLine(out hit);
+        Vector3 hitPoint = UpdateLine(out var hit);
 
-        if (onPointerUpdate != null)
-            onPointerUpdate(hitPoint, hit);
+        OnPointerUpdate?.Invoke(hitPoint, hit);
     }
 
     private Vector3 UpdateLine(out RaycastHit hit)
     {
-        if (m_CurrentOrigin == null) {
+        if (_currentOrigin == null) {
             hit = new RaycastHit();
             return new Vector3();
         }
-        gameObject.transform.SetPositionAndRotation(m_CurrentOrigin.position, m_CurrentOrigin.rotation);
-        hit = CreateRaycast(m_EverythingMask);
+        gameObject.transform.SetPositionAndRotation(_currentOrigin.position, _currentOrigin.rotation);
+        hit = CreateRaycast(everythingMask);
 
         // Calc end
-        Vector3 endPosition = m_CurrentOrigin.position + (m_CurrentOrigin.forward * m_Distance);
+        Vector3 endPosition = _currentOrigin.position + (_currentOrigin.forward * distance);
 
         if (hit.collider != null)
             endPosition = hit.point;
 
-        m_LineRenderer.SetPosition(0, m_CurrentOrigin.position);
-        m_LineRenderer.SetPosition(1, endPosition);
+        _lineRenderer.SetPosition(0, _currentOrigin.position);
+        _lineRenderer.SetPosition(1, endPosition);
 
         return endPosition;
     }
 
     private void UpdateOrigin(OVRInput.Controller controller, GameObject gmObj)
     {
-        m_CurrentOrigin = gmObj.transform;
+        _currentOrigin = gmObj.transform;
 
         // Set visible/unvisible
-        if (controller == OVRInput.Controller.Touchpad)
-            m_LineRenderer.enabled = false;
-        else
-            m_LineRenderer.enabled = true;
+        _lineRenderer.enabled = controller != OVRInput.Controller.Touchpad;
     }
 
     private RaycastHit CreateRaycast(int layer)
     {
-        RaycastHit hit;
-        Ray ray = new Ray(m_CurrentOrigin.position, m_CurrentOrigin.forward);
-        Physics.Raycast(ray, out hit, m_Distance, layer);
-
+        var ray = new Ray(_currentOrigin.position, _currentOrigin.forward);
+        Physics.Raycast(ray, out var hit, distance, layer);
+        
         return hit;
     }
 
     private void SetLineColor()
     {
-        if (!m_LineRenderer)
+        if (!_lineRenderer)
             return;
 
-        Color endColor = Color.white;
+        var endColor = Color.white;
         endColor.a = 0.0f;
 
-        m_LineRenderer.endColor = endColor;
-    }
-
-    private void ProcessTouchpadDown()
-    {
-        
-    }
-
-    private void ProcessTouchpadUp()
-    {
-
+        _lineRenderer.endColor = endColor;
     }
 }

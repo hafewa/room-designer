@@ -1,61 +1,46 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public float m_MoveSpeed = 5; 
-    public float m_SmoothTime = 0.3F;
-    public GameObject m_Pointer = null;
+    public float moveSpeed = 5;
+    public GameObject pointer;
 
-    private Vector3 velocity = Vector3.zero;
-    public Vector3 targetPos = new Vector3();
-    private Camera m_Camera = null;
-    private Vector2 m_StartTouch = new Vector2();
+    private Vector2 _startTouch;
 
     private void Awake()
     {
-        PlayerEvents.onTouchPadTouch += ProcessTouchpadTouch;
-        PlayerEvents.onTouchPadTouchUp += ProcessTouchpadTouchUp;
-        PlayerEvents.onTouchPadTouchDown += ProcessTouchpadTouchDown;
-
-        m_Camera = Camera.main;
-
-        targetPos = transform.position;
+        PlayerEvents.OnTouchPadTouch += ProcessTouchpadTouch;
+        PlayerEvents.OnTouchPadTouchUp += ProcessTouchpadTouchUp;
+        PlayerEvents.OnTouchPadTouchDown += ProcessTouchpadTouchDown;
     }
 
     private void OnDestroy()
     {
-        PlayerEvents.onTouchPadTouch -= ProcessTouchpadTouch;
-        PlayerEvents.onTouchPadTouchUp -= ProcessTouchpadTouchUp;
-        PlayerEvents.onTouchPadTouchDown -= ProcessTouchpadTouchDown;
+        PlayerEvents.OnTouchPadTouch -= ProcessTouchpadTouch;
+        PlayerEvents.OnTouchPadTouchUp -= ProcessTouchpadTouchUp;
+        PlayerEvents.OnTouchPadTouchDown -= ProcessTouchpadTouchDown;
     }
 
     private void Update()
     {
         Quaternion savedRot = transform.GetChild(0).transform.rotation;
-        
-        Vector3 newRot = new Vector3(transform.eulerAngles.x, m_Pointer.transform.eulerAngles.y, transform.eulerAngles.z);
+
+        var eulerAngles = transform.eulerAngles;
+        Vector3 newRot = new Vector3(eulerAngles.x, pointer.transform.eulerAngles.y, eulerAngles.z);
         transform.rotation = Quaternion.Euler(newRot);
-
         transform.GetChild(0).transform.rotation = savedRot;
-
-        // transform.position = new Vector3(Mathf.Lerp(transform.position.x, targetPos.z, Time.deltaTime * 1), transform.position.y, Mathf.Lerp(transform.position.z, targetPos.z, Time.deltaTime * 1));
-        targetPos.y = transform.position.y;
-        // transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, m_SmoothTime);
     }
 
     private void ProcessTouchpadTouch(Vector2 touchPoint) {
-        Vector2 touchDiff = touchPoint - m_StartTouch;
-        transform.Translate(new Vector3(touchDiff.x, 0, touchDiff.y) * m_MoveSpeed, Space.Self);
-        targetPos = transform.position + transform.forward + new Vector3(-touchDiff.x, 0, -touchDiff.y);
+        Vector2 touchDiff = touchPoint - _startTouch;
+        transform.Translate(new Vector3(touchDiff.x, 0, touchDiff.y) * moveSpeed, Space.Self);
     }
 
     private void ProcessTouchpadTouchUp() {
-        m_StartTouch.Set(0, 0);
+        _startTouch.Set(0, 0);
     }
 
     private void ProcessTouchpadTouchDown(Vector2 touchPoint) {
-        m_StartTouch = touchPoint;
+        _startTouch = touchPoint;
     }
 }

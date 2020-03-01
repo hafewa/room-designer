@@ -1,45 +1,124 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class Reticule : MonoBehaviour {
-    public Pointer m_Pointer;
-    public MeshRenderer m_CircleRenderer;
-    // public Sprite m_OpenSprite;
-    // public Sprite m_ClosedSprite;
-
-    private Camera m_Camera = null;
-    private GameObject hitObject = null;
+public class Reticule : MonoBehaviour
+{
+    #region Actions
+    public static UnityAction OnWallClicked;
+    #endregion
+    public GameObject currentObject;
+    
+    private RaycastHit _currentHit;
+    private Camera _cameraObj;
+    private GameObject _hitObject;
 
     private void Awake()
     {
-        m_Pointer.onPointerUpdate += UpdateSprite;
+        PlayerEvents.OnTriggerPressed += ProcessTriggerPressed;
+        Pointer.OnPointerUpdate += CheckHit;
 
-        m_Camera = Camera.main;
+        _cameraObj = Camera.main;
     }
 
     private void OnDestroy()
     {
-        m_Pointer.onPointerUpdate -= UpdateSprite;
+        PlayerEvents.OnTriggerPressed -= ProcessTriggerPressed;
+        Pointer.OnPointerUpdate -= CheckHit;
     }
 
-    private void Update()
+    private void CheckHit(Vector3 point, RaycastHit hit)
     {
-        Debug.Log(m_Camera.transform.rotation.ToString());
+        if (hit.collider)
+        {
+            if (_currentHit.collider)
+            {
+                if (!Equals(hit, _currentHit))
+                {
+                    switch (_currentHit.transform.tag)
+                    {
+                        case "Button":
+                            var actionButton = _currentHit.transform.GetComponent<ActionButton>();
+                            if (actionButton)
+                            {
+                                actionButton.OnPointerExit();
+                            }
+
+                            break;
+                    }
+                }
+            }
+
+            switch (hit.transform.tag)
+            {
+                case "Button":
+                    var actionButton = hit.transform.GetComponent<ActionButton>();
+                    if (actionButton)
+                    {
+                        actionButton.OnPointerEnter(hit.transform);
+                    }
+
+                    break;
+            }
+
+            _currentHit = hit;
+        }
+        else
+        {
+            _currentHit = new RaycastHit();
+        }
+
+        UpdateSprite(point, hit);
+        if (currentObject.activeSelf)
+        {
+            UpdateObjPos();
+        }
     }
 
     private void UpdateSprite(Vector3 point, RaycastHit hit)
     {
         transform.position = point;
-
         if (hit.collider)
         {
-            transform.rotation = Quaternion.FromToRotation(Vector3.forward, hit.normal);
-            Vector3 newPos = transform.position;
-            newPos += transform.forward * 0.001f;
+            transform.rotation = Quaternion.FromToRotation(-Vector3.forward, hit.normal);
+            var newPos = transform.position;
+            newPos -= transform.forward * 0.001f;
             transform.position = newPos;
-        } else {
-            transform.LookAt(m_Camera.gameObject.transform);            
         }
+        else
+        {
+            transform.LookAt(_cameraObj.gameObject.transform);
+        }
+    }
+
+    private void ProcessTriggerPressed()
+    {
+        if (!_currentHit.collider) return;
+        switch (_currentHit.transform.tag)
+        {
+            case "Button":
+                var actionButton = _currentHit.transform.GetComponent<ActionButton>();
+                if (actionButton)
+                {
+                    actionButton.OnClick(_currentHit.transform);
+                }
+
+                break;
+            case "Wall":
+                OnWallClicked?.Invoke();
+                
+                break;
+        }
+    }
+
+    public void ShowObject()
+    {
+        currentObject.SetActive(true);
+    }
+
+    private void UpdateObjPos()
+    {
+        currentObject.transform.position = transform.position;
+        currentObject.transform.rotation = transform.rotation;
     }
 }
