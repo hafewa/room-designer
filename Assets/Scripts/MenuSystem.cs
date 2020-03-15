@@ -7,13 +7,19 @@ public class MenuSystem : StateMachine
 {
     public GameObject actionsMenu;
     public GameObject reticule;
-    
+    public GameObject cameraObj;
+
+    private Reticule _reticule;
+
     private void Awake()
     {
         PlaceObject.OnPlaceButtonPressed += OnPlaceButton;
-        Reticule.OnWallClicked += OnWallClicked;
+        PlayerEvents.OnTriggerPressed += OnTriggerPressed;
+        PlayerEvents.OnTouchPadTouch += OnStartMoving;
+
+        _reticule = reticule.GetComponent<Reticule>();
     }
-    
+
     private void Start()
     {
         SetState(new MenuClosed(this));
@@ -22,21 +28,27 @@ public class MenuSystem : StateMachine
     private void OnDestroy()
     {
         PlaceObject.OnPlaceButtonPressed -= OnPlaceButton;
-        Reticule.OnWallClicked -= OnWallClicked;
+        PlayerEvents.OnTriggerPressed -= OnTriggerPressed;
+        PlayerEvents.OnTouchPadTouch -= OnStartMoving;
     }
 
     private void OnPlaceButton()
     {
-        StartCoroutine(State.PlaceObj());
+        SetState(new MovingObject(this));
     }
-    
+
     private void OnChangeColorButton()
     {
         StartCoroutine(State.ChangeColor());
     }
 
-    private void OnWallClicked()
+    private void OnTriggerPressed()
     {
+        var currentHit = _reticule.GetCurrentHit();
+
+        if (!currentHit.collider) return;
+        if (currentHit.collider.tag.Equals("Button")) return;
+        
         if (actionsMenu.activeSelf)
         {
             SetState(new MenuClosed(this));
@@ -45,5 +57,10 @@ public class MenuSystem : StateMachine
         {
             SetState(new ChoosingAction(this));
         }
+    }
+
+    private void OnStartMoving(Vector2 input)
+    {
+        SetState(new MenuClosed(this));
     }
 }

@@ -121,10 +121,15 @@ public class PlayerEvents : MonoBehaviour
             OnTouchPadTouch?.Invoke(input);
         }
 
+        if (Input.GetKey(KeyCode.W))
+        {
+            Vector2 input = new Vector2(0, 1);
+            OnTouchPadTouch?.Invoke(input);
+        }
+
         if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger) ||
             Input.GetMouseButtonDown(0))
         {
-            Debug.Log("pressed trigger");
             OnTriggerPressed?.Invoke();
         }
     }

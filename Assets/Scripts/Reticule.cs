@@ -48,7 +48,7 @@ public class Reticule : MonoBehaviour
                     }
                 }
             }
-
+            
             switch (hit.transform.tag)
             {
                 case "Button":
@@ -69,7 +69,7 @@ public class Reticule : MonoBehaviour
         }
 
         UpdateSprite(point, hit);
-        if (currentObject.activeSelf)
+        if (currentObject && currentObject.activeSelf)
         {
             UpdateObjPos();
         }
@@ -120,5 +120,10 @@ public class Reticule : MonoBehaviour
     {
         currentObject.transform.position = transform.position;
         currentObject.transform.rotation = transform.rotation;
+    }
+
+    public RaycastHit GetCurrentHit()
+    {
+        return _currentHit;
     }
 }

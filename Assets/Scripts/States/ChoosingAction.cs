@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEngine;
 
 namespace States
 {
@@ -10,12 +11,16 @@ namespace States
 
         public override IEnumerator Start()
         {
-            var reticuleTransform = MenuSystem.reticule.transform;
-            MenuSystem.actionsMenu.transform.SetPositionAndRotation(
-                reticuleTransform.position + reticuleTransform.right,
-                reticuleTransform.rotation);
+            var newPos = MenuSystem.cameraObj.transform.position + MenuSystem.cameraObj.transform.forward;
+            newPos.y = .3f;
+        
+            var eulerAngles = MenuSystem.actionsMenu.transform.eulerAngles;
+            var newRotation = Quaternion.Euler(new Vector3(eulerAngles.x, MenuSystem.cameraObj.transform.eulerAngles.y, eulerAngles.z));
+        
+            MenuSystem.actionsMenu.transform.SetPositionAndRotation(newPos, newRotation);
+        
             MenuSystem.actionsMenu.SetActive(true);
-
+            
             yield break;
         }
     }

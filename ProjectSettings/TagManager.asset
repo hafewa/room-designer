@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Button
   - Wall
+  - ActionsMenu
   layers:
   - Default
   - TransparentFX
