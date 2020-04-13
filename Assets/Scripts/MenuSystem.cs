@@ -8,6 +8,7 @@ public class MenuSystem : StateMachine
     public GameObject actionsMenu;
     public GameObject reticule;
     public GameObject cameraObj;
+    public GameObject objectsMenu;
 
     private Reticule _reticule;
 
@@ -34,7 +35,7 @@ public class MenuSystem : StateMachine
 
     private void OnPlaceButton()
     {
-        SetState(new MovingObject(this));
+        StartCoroutine(State.ChooseObject());
     }
 
     private void OnChangeColorButton()
@@ -44,23 +45,11 @@ public class MenuSystem : StateMachine
 
     private void OnTriggerPressed()
     {
-        var currentHit = _reticule.GetCurrentHit();
-
-        if (!currentHit.collider) return;
-        if (currentHit.collider.tag.Equals("Button")) return;
-        
-        if (actionsMenu.activeSelf)
-        {
-            SetState(new MenuClosed(this));
-        }
-        else
-        {
-            SetState(new ChoosingAction(this));
-        }
+        StartCoroutine(State.PressTrigger());
     }
 
     private void OnStartMoving(Vector2 input)
     {
-        SetState(new MenuClosed(this));
+        StartCoroutine(State.Move());
     }
 }

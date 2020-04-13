@@ -7,8 +7,7 @@ public class Reticule : MonoBehaviour
     #region Actions
     public static UnityAction OnWallClicked;
     #endregion
-    public GameObject currentObject;
-    
+
     private RaycastHit _currentHit;
     private Camera _cameraObj;
     private GameObject _hitObject;
@@ -69,10 +68,6 @@ public class Reticule : MonoBehaviour
         }
 
         UpdateSprite(point, hit);
-        if (currentObject && currentObject.activeSelf)
-        {
-            UpdateObjPos();
-        }
     }
 
     private void UpdateSprite(Vector3 point, RaycastHit hit)
@@ -80,7 +75,7 @@ public class Reticule : MonoBehaviour
         transform.position = point;
         if (hit.collider)
         {
-            transform.rotation = Quaternion.FromToRotation(-Vector3.forward, hit.normal);
+            transform.rotation = Quaternion.FromToRotation(Vector3.back, hit.normal);
             var newPos = transform.position;
             newPos -= transform.forward * 0.001f;
             transform.position = newPos;
@@ -109,17 +104,6 @@ public class Reticule : MonoBehaviour
                 
                 break;
         }
-    }
-
-    public void ShowObject()
-    {
-        currentObject.SetActive(true);
-    }
-
-    private void UpdateObjPos()
-    {
-        currentObject.transform.position = transform.position;
-        currentObject.transform.rotation = transform.rotation;
     }
 
     public RaycastHit GetCurrentHit()

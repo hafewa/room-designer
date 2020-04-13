@@ -24,12 +24,17 @@ public abstract class State
         yield break;
     }
 
-    public virtual IEnumerator CommitObjPos()
+    public virtual IEnumerator ChangeColor()
     {
         yield break;
     }
 
-    public virtual IEnumerator ChangeColor()
+    public virtual IEnumerator PressTrigger()
+    {
+        yield break;
+    }
+
+    public virtual IEnumerator Move()
     {
         yield break;
     }
