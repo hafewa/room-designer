@@ -9,9 +9,8 @@ public class PlayerEvents : MonoBehaviour
 
     public static UnityAction OnTouchPadUp = null;
     public static UnityAction OnTouchPadDown = null;
-    public static UnityAction<Vector2> OnTouchPadTouchDown = null;
+    public static UnityAction OnTouchPadTouchDown = null;
     public static UnityAction OnTouchPadTouchUp = null;
-    public static UnityAction<Vector2> OnTouchPadTouch = null;
     public static UnityAction OnTriggerPressed = null;
     public static UnityAction<OVRInput.Controller, GameObject> OnControllerSource = null;
 
@@ -31,6 +30,9 @@ public class PlayerEvents : MonoBehaviour
     private OVRInput.Controller _inputSource = OVRInput.Controller.None;
     private OVRInput.Controller _controller = OVRInput.Controller.None;
     private bool _inputActive = true;
+
+    public static Vector2 TouchPos;
+    public static Vector2 StartTouchPos;
 
     #endregion
 
@@ -101,30 +103,55 @@ public class PlayerEvents : MonoBehaviour
 
         if (OVRInput.GetDown(OVRInput.Touch.PrimaryTouchpad))
         {
-            Vector2 input = OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
-            OnTouchPadTouchDown?.Invoke(input);
+            StartTouchPos = OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+            
+            OnTouchPadTouchDown?.Invoke();
         }
 
         if (OVRInput.GetUp(OVRInput.Touch.PrimaryTouchpad))
         {
+            StartTouchPos.Set(0, 0);
+            TouchPos.Set(0, 0);
+
             OnTouchPadTouchUp?.Invoke();
         }
 
         if (OVRInput.Get(OVRInput.Touch.PrimaryTouchpad))
         {
-            Vector2 input = OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+            TouchPos = OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+            
             if (debugText != null)
             {
-                debugText.text = input.ToString();
+                debugText.text = TouchPos.ToString();
             }
-
-            OnTouchPadTouch?.Invoke(input);
         }
 
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W))
         {
-            Vector2 input = new Vector2(0, 1);
-            OnTouchPadTouch?.Invoke(input);
+            TouchPos = new Vector2(0, 1);
+            
+            OnTouchPadTouchDown?.Invoke();
+        }
+        
+        if (Input.GetKeyUp(KeyCode.W))
+        {
+            TouchPos = new Vector2(0, 0);
+            
+            OnTouchPadTouchUp?.Invoke();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            TouchPos = new Vector2(1, 0);
+            
+            OnTouchPadTouchDown?.Invoke();
+        }
+        
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            TouchPos = new Vector2(0, 0);
+            
+            OnTouchPadTouchUp?.Invoke();
         }
 
         if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger) ||

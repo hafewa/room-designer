@@ -1,16 +1,26 @@
 ﻿using System;
+using cakeslice;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class Reticule : MonoBehaviour
 {
     #region Actions
+
     public static UnityAction OnWallClicked;
+    public static UnityAction<InteriorObject> OnMoveBtnClicked;
+    public static UnityAction<InteriorObject> OnRotateBtnClicked;
+
     #endregion
 
+    public GameObject editActions;
+    
     private RaycastHit _currentHit;
     private Camera _cameraObj;
     private GameObject _hitObject;
+
+    private InteriorObject _selectedObj;
+    private Vector3 _selectedObjSize;
 
     private void Awake()
     {
@@ -26,28 +36,39 @@ public class Reticule : MonoBehaviour
         Pointer.OnPointerUpdate -= CheckHit;
     }
 
+    private void Update()
+    {
+        if (!_selectedObj) return;
+        
+        editActions.transform.position = _selectedObj.transform.position + new Vector3(0, _selectedObjSize.y);
+    }
+
     private void CheckHit(Vector3 point, RaycastHit hit)
     {
+        // On blur
+        if (_currentHit.collider && !Equals(hit, _currentHit))
+        {
+            switch (_currentHit.transform.tag)
+            {
+                case "Button":
+                    var actionButton = _currentHit.transform.GetComponent<ActionButton>();
+                    if (actionButton)
+                    {
+                        actionButton.OnPointerExit();
+                    }
+
+                    break;
+                case "Selectable":
+                    var interiorObject = _currentHit.transform.GetComponent<InteriorObject>();
+                    interiorObject.OnBlur();
+                    
+                    break;
+            }
+        }
+
+        // On hover
         if (hit.collider)
         {
-            if (_currentHit.collider)
-            {
-                if (!Equals(hit, _currentHit))
-                {
-                    switch (_currentHit.transform.tag)
-                    {
-                        case "Button":
-                            var actionButton = _currentHit.transform.GetComponent<ActionButton>();
-                            if (actionButton)
-                            {
-                                actionButton.OnPointerExit();
-                            }
-
-                            break;
-                    }
-                }
-            }
-            
             switch (hit.transform.tag)
             {
                 case "Button":
@@ -58,14 +79,15 @@ public class Reticule : MonoBehaviour
                     }
 
                     break;
-            }
+                case "Selectable":
+                    var interiorObject = hit.transform.GetComponent<InteriorObject>();
+                    interiorObject.OnHover();
 
-            _currentHit = hit;
+                    break;
+            }
         }
-        else
-        {
-            _currentHit = new RaycastHit();
-        }
+
+        _currentHit = hit;
 
         UpdateSprite(point, hit);
     }
@@ -93,14 +115,50 @@ public class Reticule : MonoBehaviour
         {
             case "Button":
                 var actionButton = _currentHit.transform.GetComponent<ActionButton>();
-                if (actionButton)
+                if (!actionButton) break;
+                
+                actionButton.OnClick(_currentHit.transform);
+                Debug.Log("pressed");
+                switch (_currentHit.transform.name)
                 {
-                    actionButton.OnClick(_currentHit.transform);
+                    case "Move":
+                        Debug.Log("pressed Move");
+                        OnMoveBtnClicked(_selectedObj);
+                        
+                        break;
+                    case "Rotate":
+                        Debug.Log("pressed Rotate");
+                        OnRotateBtnClicked(_selectedObj);
+                        
+                        break;
                 }
 
                 break;
             case "Wall":
                 OnWallClicked?.Invoke();
+
+                break;
+            case "Selectable":
+                var interiorObject = _currentHit.transform.GetComponent<InteriorObject>();
+                if (_selectedObj)
+                {
+                    if (_selectedObj.Equals(interiorObject))
+                    {
+                        _selectedObj.Deselect();
+                        _selectedObj = null;
+                    
+                        editActions.SetActive(false);
+                        break;
+                    }
+                    
+                    _selectedObj.Deselect();
+                }
+                
+                interiorObject.Select();
+
+                _selectedObj = interiorObject;
+                _selectedObjSize = _selectedObj.GetComponent<Collider>().bounds.size;
+                editActions.SetActive(true);
                 
                 break;
         }

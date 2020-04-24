@@ -9,6 +9,7 @@ TagManager:
   - ActionsMenu
   - SelectObject
   - CloseBtn
+  - Selectable
   layers:
   - Default
   - TransparentFX

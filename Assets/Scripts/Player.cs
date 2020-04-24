@@ -6,42 +6,35 @@ public class Player : MonoBehaviour
     public GameObject pointer;
     public Transform cameraObj;
 
-    private Vector2 _startTouch;
-
-    private void Awake()
-    {
-        PlayerEvents.OnTouchPadTouch += ProcessTouchpadTouch;
-        PlayerEvents.OnTouchPadTouchUp += ProcessTouchpadTouchUp;
-        PlayerEvents.OnTouchPadTouchDown += ProcessTouchpadTouchDown;
-    }
-
-    private void OnDestroy()
-    {
-        PlayerEvents.OnTouchPadTouch -= ProcessTouchpadTouch;
-        PlayerEvents.OnTouchPadTouchUp -= ProcessTouchpadTouchUp;
-        PlayerEvents.OnTouchPadTouchDown -= ProcessTouchpadTouchDown;
-    }
+    private bool _canMove = true;
 
     private void Update()
     {
-        Quaternion savedRot = cameraObj.rotation;
+        var savedRot = cameraObj.rotation;
 
         var eulerAngles = transform.eulerAngles;
-        Vector3 newRot = new Vector3(eulerAngles.x, pointer.transform.eulerAngles.y, eulerAngles.z);
+        var newRot = new Vector3(eulerAngles.x, pointer.transform.eulerAngles.y, eulerAngles.z);
         transform.rotation = Quaternion.Euler(newRot);
         cameraObj.rotation = savedRot;
+
+        if (!_canMove) return;
+        
+        UpdatePos();
     }
 
-    private void ProcessTouchpadTouch(Vector2 touchPoint) {
-        Vector2 touchDiff = touchPoint - _startTouch;
+    private void UpdatePos()
+    {
+        Vector2 touchDiff = PlayerEvents.TouchPos - PlayerEvents.StartTouchPos;
         transform.Translate(new Vector3(touchDiff.x, 0, touchDiff.y) * (moveSpeed * Time.deltaTime), Space.Self);
     }
 
-    private void ProcessTouchpadTouchUp() {
-        _startTouch.Set(0, 0);
+    public void DisableMove()
+    {
+        _canMove = false;
     }
 
-    private void ProcessTouchpadTouchDown(Vector2 touchPoint) {
-        _startTouch = touchPoint;
+    public void EnableMove()
+    {
+        _canMove = true;
     }
 }

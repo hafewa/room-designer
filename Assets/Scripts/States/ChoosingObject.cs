@@ -6,15 +6,18 @@ namespace States
 {
     public class ChoosingObject : State
     {
+        private bool _isActive = true;
+
         public ChoosingObject(MenuSystem menuSystem) : base(menuSystem)
         {
         }
 
         public override IEnumerator Start()
         {
-            ResetObjectsMenuPos();
+            if (!_isActive) yield break;
 
-            yield break;
+            ResetObjectsMenuPos();
+            ShowObjectsMenu();
         }
 
         private void ResetObjectsMenuPos()
@@ -27,52 +30,77 @@ namespace States
                 eulerAngles.z));
 
             MenuSystem.objectsMenu.transform.SetPositionAndRotation(newPos, newRotation);
+        }
 
+        public void ShowObjectsMenu()
+        {
             MenuSystem.objectsMenu.SetActive(true);
+            _isActive = true;
+        }
+
+        public void HideObjectsMenu()
+        {
+            MenuSystem.objectsMenu.SetActive(false);
+            _isActive = false;
         }
 
         public override IEnumerator PressTrigger()
         {
-            if (!MenuSystem.objectsMenu.activeSelf)
-            {
-                ResetObjectsMenuPos();
-                yield break;
-            }
-            
-            var reticule = MenuSystem.reticule.GetComponent<Reticule>();
+            var reticule = MenuSystem.reticuleObj;
             var currentHit = reticule.GetCurrentHit();
 
             if (!currentHit.collider)
             {
+                if (MenuSystem.objectsMenu.activeSelf) yield break;
+                ResetObjectsMenuPos();
+                ShowObjectsMenu();
+
                 yield break;
             }
 
             switch (currentHit.collider.gameObject.tag)
             {
                 case "SelectObject":
-                    SelectObject(currentHit);
+                    SelectObject(currentHit.collider);
                     break;
                 case "CloseBtn":
-                    MenuSystem.objectsMenu.SetActive(false);
+                    HideObjectsMenu();
+
                     MenuSystem.SetState(new ChoosingAction(MenuSystem));
+                    break;
+                case "Selectable":
+                    break;
+
+                default:
+                    if (MenuSystem.objectsMenu.activeSelf) break;
+                    ResetObjectsMenuPos();
+                    ShowObjectsMenu();
+
                     break;
             }
         }
 
-        private void SelectObject(RaycastHit currentHit)
+        private void SelectObject(Component collider)
         {
-            var btn = currentHit.collider.gameObject.GetComponent<SelectObject>();
-            if (btn == null)
-            {
-                return;
-            }
+            var objBtn = collider.gameObject.GetComponent<SelectObject>();
 
-            MenuSystem.SetState(new MovingObject(MenuSystem, btn.gmObj));
+            var newObj = Object.Instantiate(objBtn.gmObj);
+            newObj.AddComponent<InteriorObject>();
+            var newInteriorObj = newObj.GetComponent<InteriorObject>();
+
+            MenuSystem.SetState(new MovingObject(MenuSystem, newInteriorObj, this, true));
         }
 
         public override IEnumerator Move()
         {
-            MenuSystem.objectsMenu.SetActive(false);
+            HideObjectsMenu();
+
+            yield break;
+        }
+
+        public override IEnumerator EditBtnClicked()
+        {
+            HideObjectsMenu();
             
             yield break;
         }

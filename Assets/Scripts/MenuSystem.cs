@@ -9,16 +9,20 @@ public class MenuSystem : StateMachine
     public GameObject reticule;
     public GameObject cameraObj;
     public GameObject objectsMenu;
-
-    private Reticule _reticule;
+    public Player player;
+    
+    [HideInInspector]
+    public Reticule reticuleObj;
 
     private void Awake()
     {
+        reticuleObj = reticule.GetComponent<Reticule>();
+        
+        Reticule.OnMoveBtnClicked += OnMoveBtnClicked;
+        Reticule.OnRotateBtnClicked += OnRotateBtnClicked;
         PlaceObject.OnPlaceButtonPressed += OnPlaceButton;
         PlayerEvents.OnTriggerPressed += OnTriggerPressed;
-        PlayerEvents.OnTouchPadTouch += OnStartMoving;
-
-        _reticule = reticule.GetComponent<Reticule>();
+        PlayerEvents.OnTouchPadTouchDown += OnStartMoving;
     }
 
     private void Start()
@@ -28,9 +32,11 @@ public class MenuSystem : StateMachine
 
     private void OnDestroy()
     {
+        Reticule.OnMoveBtnClicked -= OnMoveBtnClicked;
+        Reticule.OnRotateBtnClicked -= OnRotateBtnClicked;
         PlaceObject.OnPlaceButtonPressed -= OnPlaceButton;
         PlayerEvents.OnTriggerPressed -= OnTriggerPressed;
-        PlayerEvents.OnTouchPadTouch -= OnStartMoving;
+        PlayerEvents.OnTouchPadTouchDown -= OnStartMoving;
     }
 
     private void OnPlaceButton()
@@ -48,8 +54,20 @@ public class MenuSystem : StateMachine
         StartCoroutine(State.PressTrigger());
     }
 
-    private void OnStartMoving(Vector2 input)
+    private void OnStartMoving()
     {
         StartCoroutine(State.Move());
+    }
+
+    private void OnMoveBtnClicked(InteriorObject obj)
+    {
+        StartCoroutine(State.EditBtnClicked());
+        SetState(new MovingObject(this, obj, State));
+    }
+    
+    private void OnRotateBtnClicked(InteriorObject obj)
+    {
+        StartCoroutine(State.EditBtnClicked());
+        SetState(new RotatingObject(this, obj, State));
     }
 }
