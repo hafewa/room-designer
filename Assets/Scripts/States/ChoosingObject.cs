@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using Buttons;
 using UnityEngine;
 
 namespace States
@@ -32,65 +31,18 @@ namespace States
             MenuSystem.objectsMenu.transform.SetPositionAndRotation(newPos, newRotation);
         }
 
-        public void ShowObjectsMenu()
+        private void ShowObjectsMenu()
         {
             MenuSystem.objectsMenu.SetActive(true);
             _isActive = true;
         }
 
-        public void HideObjectsMenu()
+        private void HideObjectsMenu()
         {
             MenuSystem.objectsMenu.SetActive(false);
             _isActive = false;
         }
-
-        public override IEnumerator PressTrigger()
-        {
-            var reticule = MenuSystem.reticuleObj;
-            var currentHit = reticule.GetCurrentHit();
-
-            if (!currentHit.collider)
-            {
-                if (MenuSystem.objectsMenu.activeSelf) yield break;
-                ResetObjectsMenuPos();
-                ShowObjectsMenu();
-
-                yield break;
-            }
-
-            switch (currentHit.collider.gameObject.tag)
-            {
-                case "SelectObject":
-                    SelectObject(currentHit.collider);
-                    break;
-                case "CloseBtn":
-                    HideObjectsMenu();
-
-                    MenuSystem.SetState(new ChoosingAction(MenuSystem));
-                    break;
-                case "Selectable":
-                    break;
-
-                default:
-                    if (MenuSystem.objectsMenu.activeSelf) break;
-                    ResetObjectsMenuPos();
-                    ShowObjectsMenu();
-
-                    break;
-            }
-        }
-
-        private void SelectObject(Component collider)
-        {
-            var objBtn = collider.gameObject.GetComponent<SelectObject>();
-
-            var newObj = Object.Instantiate(objBtn.gmObj);
-            newObj.AddComponent<InteriorObject>();
-            var newInteriorObj = newObj.GetComponent<InteriorObject>();
-
-            MenuSystem.SetState(new MovingObject(MenuSystem, newInteriorObj, this, true));
-        }
-
+        
         public override IEnumerator Move()
         {
             HideObjectsMenu();
@@ -98,10 +50,41 @@ namespace States
             yield break;
         }
 
+        public override IEnumerator PressTrigger()
+        {
+            if (MenuSystem.objectsMenu.activeSelf) yield break;
+
+            var collider = MenuSystem.reticuleObj.GetCurrentHit().collider;
+            if (collider && collider.CompareTag("Selectable")) yield break;
+            
+            ResetObjectsMenuPos();
+            ShowObjectsMenu();
+        }
+
+        public override IEnumerator ObjectBtnClicked(GameObject objPrefab)
+        {
+            var newObj = Object.Instantiate(objPrefab);
+            newObj.AddComponent<InteriorObject>();
+            var newInteriorObj = newObj.GetComponent<InteriorObject>();
+
+            MenuSystem.SetState(new MovingObject(MenuSystem, newInteriorObj, this, true));
+            
+            yield break;
+        }
+
         public override IEnumerator EditBtnClicked()
         {
             HideObjectsMenu();
-            
+
+            yield break;
+        }
+
+        public override IEnumerator CloseBtnClicked()
+        {
+            MenuSystem.objectsMenu.SetActive(false);
+
+            MenuSystem.SetState(new ChoosingAction(MenuSystem));
+
             yield break;
         }
     }

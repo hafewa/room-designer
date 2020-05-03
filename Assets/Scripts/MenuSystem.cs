@@ -1,5 +1,4 @@
 ﻿using System;
-using Buttons;
 using States;
 using UnityEngine;
 
@@ -17,10 +16,7 @@ public class MenuSystem : StateMachine
     private void Awake()
     {
         reticuleObj = reticule.GetComponent<Reticule>();
-        
-        Reticule.OnMoveBtnClicked += OnMoveBtnClicked;
-        Reticule.OnRotateBtnClicked += OnRotateBtnClicked;
-        PlaceObject.OnPlaceButtonPressed += OnPlaceButton;
+
         PlayerEvents.OnTriggerPressed += OnTriggerPressed;
         PlayerEvents.OnTouchPadTouchDown += OnStartMoving;
     }
@@ -32,16 +28,23 @@ public class MenuSystem : StateMachine
 
     private void OnDestroy()
     {
-        Reticule.OnMoveBtnClicked -= OnMoveBtnClicked;
-        Reticule.OnRotateBtnClicked -= OnRotateBtnClicked;
-        PlaceObject.OnPlaceButtonPressed -= OnPlaceButton;
         PlayerEvents.OnTriggerPressed -= OnTriggerPressed;
         PlayerEvents.OnTouchPadTouchDown -= OnStartMoving;
     }
 
-    private void OnPlaceButton()
+    public void OnPlaceButtonClicked()
     {
         StartCoroutine(State.ChooseObject());
+    }
+    
+    public void OnObjectBtnClicked(GameObject objPrefab)
+    {
+        StartCoroutine(State.ObjectBtnClicked(objPrefab));
+    }
+    
+    public void OnCloseButtonClicked()
+    {
+        StartCoroutine(State.CloseBtnClicked());
     }
 
     private void OnChangeColorButton()
@@ -59,15 +62,28 @@ public class MenuSystem : StateMachine
         StartCoroutine(State.Move());
     }
 
-    private void OnMoveBtnClicked(InteriorObject obj)
+    public void OnMoveBtnClicked()
     {
         StartCoroutine(State.EditBtnClicked());
-        SetState(new MovingObject(this, obj, State));
+        SetState(new MovingObject(this, reticuleObj.GetSelected(), State));
     }
     
-    private void OnRotateBtnClicked(InteriorObject obj)
+    public void OnRotateBtnClicked()
     {
         StartCoroutine(State.EditBtnClicked());
-        SetState(new RotatingObject(this, obj, State));
+        SetState(new RotatingObject(this, reticuleObj.GetSelected(), State));
+    }
+    
+    public void OnScaleBtnClicked()
+    {
+        StartCoroutine(State.EditBtnClicked());
+        SetState(new ScalingObject(this, reticuleObj.GetSelected(), State));
+    }
+    
+    public void OnDeleteBtnClicked()
+    {
+        StartCoroutine(State.EditBtnClicked());
+        reticuleObj.ResetSelected();
+        Destroy(reticuleObj.GetSelected().gameObject);
     }
 }

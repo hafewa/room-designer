@@ -21,10 +21,12 @@ public class InteriorObject : MonoBehaviour
 
     #endregion
 
-    #region RotateProps
+    #region EditProps
 
     private Vector3 _startEuler;
-    private const float RotateSpeed = 350f;
+    private Vector3 _startScale;
+    private const float RotateSpeed = 20f;
+    private const float ScaleSpeed = 0.2f;
 
     #endregion
 
@@ -32,12 +34,12 @@ public class InteriorObject : MonoBehaviour
 
     private void Awake()
     {
-        PlayerEvents.OnTouchPadTouchUp += SetStartRotation;
+        PlayerEvents.OnTouchPadTouchDown += SetStartTransform;
     }
     
     private void OnDestroy()
     {
-        PlayerEvents.OnTouchPadTouchUp -= SetStartRotation;
+        PlayerEvents.OnTouchPadTouchDown -= SetStartTransform;
     }
 
     private void Update()
@@ -57,7 +59,8 @@ public class InteriorObject : MonoBehaviour
                 break;
 
             case State.Scaling:
-
+                ScaleObj();
+                
                 break;
 
             default:
@@ -68,7 +71,7 @@ public class InteriorObject : MonoBehaviour
     private void MoveToPointer()
     {
         transform.SetPositionAndRotation(_reticule.transform.position, _reticule.transform.rotation);
-        transform.Rotate(Vector3.right, -90);
+        transform.Rotate(Vector3.right, 90);
     }
 
     public void StartMoving(GameObject reticule)
@@ -94,9 +97,10 @@ public class InteriorObject : MonoBehaviour
         _state = State.Idle;
     }
 
-    private void SetStartRotation()
+    private void SetStartTransform()
     {
-        if (_state != State.Rotating) return;
+        if (_state != State.Rotating && _state != State.Scaling) return;
+        _startScale = transform.localScale;
         _startEuler = transform.localEulerAngles;
     }
 
@@ -105,13 +109,24 @@ public class InteriorObject : MonoBehaviour
         if (PlayerEvents.TouchPos.Equals(PlayerEvents.StartTouchPos)) return;
         
         var touchDiff = PlayerEvents.TouchPos - PlayerEvents.StartTouchPos;
-        var newYAngle = _startEuler.y + touchDiff.x * RotateSpeed * Time.deltaTime;
+        var newYAngle = _startEuler.y + touchDiff.x * RotateSpeed;
         
         var localEulerAngles = transform.localEulerAngles;
         localEulerAngles = new Vector3(localEulerAngles.x, newYAngle, localEulerAngles.z);
         transform.localEulerAngles = localEulerAngles;
     }
-
+    
+    private void ScaleObj()
+    {
+        if (PlayerEvents.TouchPos.Equals(PlayerEvents.StartTouchPos)) return;
+        
+        var touchDiff = PlayerEvents.TouchPos - PlayerEvents.StartTouchPos;
+        var newScale = _startScale.y + touchDiff.y * ScaleSpeed;
+        
+        var localScale = new Vector3(newScale, newScale, newScale);
+        transform.localScale = localScale;
+    }
+    
     private void UpdateOutline(bool enable, int color)
     {
         foreach (Transform mesh in transform)

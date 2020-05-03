@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEngine;
 
 public abstract class State
 {
@@ -30,6 +31,16 @@ public abstract class State
     }
 
     public virtual IEnumerator PressTrigger()
+    {
+        yield break;
+    }
+    
+    public virtual IEnumerator ObjectBtnClicked(GameObject objPrefab)
+    {
+        yield break;
+    }
+    
+    public virtual IEnumerator CloseBtnClicked()
     {
         yield break;
     }

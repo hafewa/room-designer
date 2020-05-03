@@ -66,17 +66,14 @@ public class PlayerEvents : MonoBehaviour
 
     private void CheckForController()
     {
-        OVRInput.Controller controllerCheck = _controller;
+        OVRInput.Controller controllerCheck;
 
         if (OVRInput.IsControllerConnected(OVRInput.Controller.LTrackedRemote))
             controllerCheck = OVRInput.Controller.LTrackedRemote;
-
-        if (OVRInput.IsControllerConnected(OVRInput.Controller.RTrackedRemote))
+        else if (OVRInput.IsControllerConnected(OVRInput.Controller.RTrackedRemote))
             controllerCheck = OVRInput.Controller.RTrackedRemote;
-
         // None, touchpad
-        if (!OVRInput.IsControllerConnected(OVRInput.Controller.LTrackedRemote) &&
-            !OVRInput.IsControllerConnected(OVRInput.Controller.RTrackedRemote))
+        else
             controllerCheck = OVRInput.Controller.Touchpad;
 
         // Update
@@ -91,23 +88,27 @@ public class PlayerEvents : MonoBehaviour
 
     private void InputEvents()
     {
+        // Touchpad button pressed
         if (OVRInput.GetDown(OVRInput.Button.PrimaryTouchpad))
         {
             OnTouchPadDown?.Invoke();
         }
 
+        // Touchpad button released
         if (OVRInput.GetUp(OVRInput.Button.PrimaryTouchpad))
         {
             OnTouchPadUp?.Invoke();
         }
 
+        // Touchpad touched
         if (OVRInput.GetDown(OVRInput.Touch.PrimaryTouchpad))
         {
             StartTouchPos = OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
-            
+
             OnTouchPadTouchDown?.Invoke();
         }
 
+        // Touchpad released
         if (OVRInput.GetUp(OVRInput.Touch.PrimaryTouchpad))
         {
             StartTouchPos.Set(0, 0);
@@ -116,48 +117,45 @@ public class PlayerEvents : MonoBehaviour
             OnTouchPadTouchUp?.Invoke();
         }
 
+        // Touchpad is touching
         if (OVRInput.Get(OVRInput.Touch.PrimaryTouchpad))
         {
             TouchPos = OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
-            
-            if (debugText != null)
-            {
-                debugText.text = TouchPos.ToString();
-            }
+        }
+
+        // Trigger button pressed
+        if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger) ||
+            Input.GetMouseButtonDown(0))
+        {
+            OnTriggerPressed?.Invoke();
         }
 
         if (Input.GetKeyDown(KeyCode.W))
         {
             TouchPos = new Vector2(0, 1);
-            
+
             OnTouchPadTouchDown?.Invoke();
         }
-        
+
         if (Input.GetKeyUp(KeyCode.W))
         {
             TouchPos = new Vector2(0, 0);
-            
-            OnTouchPadTouchUp?.Invoke();
-        }
-        
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            TouchPos = new Vector2(1, 0);
-            
-            OnTouchPadTouchDown?.Invoke();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.D))
-        {
-            TouchPos = new Vector2(0, 0);
-            
+
             OnTouchPadTouchUp?.Invoke();
         }
 
-        if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger) ||
-            Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.D))
         {
-            OnTriggerPressed?.Invoke();
+            TouchPos = new Vector2(1, 0);
+
+            OnTouchPadTouchDown?.Invoke();
+        }
+
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            TouchPos = new Vector2(0, 0);
+
+            OnTouchPadTouchUp?.Invoke();
         }
     }
 
@@ -188,7 +186,7 @@ public class PlayerEvents : MonoBehaviour
 
     private Dictionary<OVRInput.Controller, GameObject> CreateControllerSets()
     {
-        Dictionary<OVRInput.Controller, GameObject> newSets = new Dictionary<OVRInput.Controller, GameObject>()
+        var newSets = new Dictionary<OVRInput.Controller, GameObject>()
         {
             {OVRInput.Controller.LTrackedRemote, leftAnchor},
             {OVRInput.Controller.RTrackedRemote, rightAnchor},

@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace States
 {
-    public class RotatingObject : State
+    public class ScalingObject : State
     {
-        private readonly InteriorObject _rotatingObj;
+        private readonly InteriorObject _scalingObj;
         private readonly State _prevState;
 
-        public RotatingObject(MenuSystem menuSystem, InteriorObject rotatingObj, State prevState) : base(menuSystem)
+        public ScalingObject(MenuSystem menuSystem, InteriorObject scalingObj, State prevState) : base(menuSystem)
         {
-            _rotatingObj = rotatingObj;
+            _scalingObj = scalingObj;
             _prevState = prevState;
         }
 
@@ -18,14 +18,14 @@ namespace States
         {
             MenuSystem.player.DisableMove();
 
-            _rotatingObj.StartRotating();
+            _scalingObj.StartScaling();
 
             yield break;
         }
 
         public override IEnumerator PressTrigger()
         {
-            _rotatingObj.StopAnything();
+            _scalingObj.StopAnything();
 
             MenuSystem.player.EnableMove();
             MenuSystem.SetState(_prevState);
