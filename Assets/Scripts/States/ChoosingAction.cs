@@ -11,8 +11,8 @@ namespace States
 
         public override IEnumerator Start()
         {
-            var newPos = MenuSystem.cameraObj.transform.position + MenuSystem.cameraObj.transform.forward;
-            newPos.y = .3f;
+            var newPos = MenuSystem.cameraObj.transform.position + MenuSystem.cameraObj.transform.forward * 8;
+            newPos.y = 5f;
 
             var eulerAngles = MenuSystem.actionsMenu.transform.eulerAngles;
             var newRotation = Quaternion.Euler(new Vector3(eulerAngles.x, MenuSystem.cameraObj.transform.eulerAngles.y,

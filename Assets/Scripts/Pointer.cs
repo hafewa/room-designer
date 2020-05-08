@@ -8,7 +8,9 @@ public class Pointer : MonoBehaviour {
     public LayerMask everythingMask = 0;
     public LineRenderer lineRenderer;
     public Transform reticule;
-
+    
+    public static Ray Ray;
+    
     private Transform _currentOrigin;
     private GameObject _currentObject;
 
@@ -52,8 +54,8 @@ public class Pointer : MonoBehaviour {
 
     private RaycastHit CreateRaycast(int layer)
     {
-        var ray = new Ray(_currentOrigin.position, _currentOrigin.forward);
-        Physics.Raycast(ray, out var hit, 20, layer);
+        Ray = new Ray(_currentOrigin.position, _currentOrigin.forward);
+        Physics.Raycast(Ray, out var hit, 20, layer);
         
         return hit;
     }

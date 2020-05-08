@@ -21,8 +21,8 @@ namespace States
 
         private void ResetObjectsMenuPos()
         {
-            var newPos = MenuSystem.cameraObj.transform.position + MenuSystem.cameraObj.transform.forward * 2;
-            newPos.y = 1.24f;
+            var newPos = MenuSystem.cameraObj.transform.position + MenuSystem.cameraObj.transform.forward * 11f;
+            newPos.y = 8f;
 
             var eulerAngles = MenuSystem.objectsMenu.transform.eulerAngles;
             var newRotation = Quaternion.Euler(new Vector3(eulerAngles.x, MenuSystem.cameraObj.transform.eulerAngles.y,
