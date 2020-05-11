@@ -83,7 +83,7 @@ public class MenuSystem : StateMachine
     public void OnDeleteBtnClicked()
     {
         StartCoroutine(State.EditBtnClicked());
-        reticuleObj.ResetSelected();
         Destroy(reticuleObj.GetSelected().gameObject);
+        reticuleObj.ResetSelected();
     }
 }
