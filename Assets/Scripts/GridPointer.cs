@@ -12,6 +12,7 @@ public class GridPointer : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private void Awake()
     {
         _selectPoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        _selectPoint.GetComponent<Collider>().enabled = false;
         _selectPoint.transform.localScale = new Vector3(5f, 5f, 5f);
     }
 

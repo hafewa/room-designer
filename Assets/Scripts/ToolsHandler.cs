@@ -4,26 +4,45 @@ using UnityEngine.UI;
 
 public class ToolsHandler : MonoBehaviour
 {
+    public GameObject drawingBoard;
+    
     public enum Tool
     {
         None,
         DrawFloor,
         DrawWall,
+        DrawWindow,
         Eraser
     }
 
     public static Tool CurrentTool { get; private set; } = Tool.None;
-    public LinePlacer linePlacer;
-    public FloorPlacer floorPlacer;
-    
+
+    #region ToolScripts
+
+    private LinePlacer _linePlacer;
+    private FloorPlacer _floorPlacer;
+    private WindowPlacer _windowPlacer;
+    private Eraser _eraser;
+
+    #endregion
+
+    #region ToolBtns
+
     public Image drawWallBtn;
     public Image drawFloorBtn;
     public Image eraserBtn;
 
+    #endregion
+
 
     private void Awake()
     {
-        SetTool(2);
+        _eraser = drawingBoard.GetComponent<Eraser>();
+        _linePlacer = drawingBoard.GetComponent<LinePlacer>();
+        _windowPlacer = drawingBoard.GetComponent<WindowPlacer>();
+        _floorPlacer = drawingBoard.GetComponent<FloorPlacer>();
+        
+        ResetAll();
     }
 
     public void SetTool(int toolInd)
@@ -37,16 +56,22 @@ public class ToolsHandler : MonoBehaviour
         switch (CurrentTool)
         {
             case Tool.DrawWall:
-                linePlacer.enabled = true;
+                _linePlacer.enabled = true;
+                SetSelected(drawWallBtn);
+
+                break;
+            case Tool.DrawWindow:
+                _windowPlacer.enabled = true;
                 SetSelected(drawWallBtn);
 
                 break;
             case Tool.DrawFloor:
-                floorPlacer.enabled = true;
+                _floorPlacer.enabled = true;
                 SetSelected(drawFloorBtn);
 
                 break;
             case Tool.Eraser:
+                _eraser.enabled = true;
                 SetSelected(eraserBtn);
 
                 break;
@@ -91,7 +116,9 @@ public class ToolsHandler : MonoBehaviour
         drawFloorBtn.color = color;
         eraserBtn.color = color;
 
-        linePlacer.enabled = false;
-        floorPlacer.enabled = false;
+        _linePlacer.enabled = false;
+        _floorPlacer.enabled = false;
+        _eraser.enabled = false;
+        _windowPlacer.enabled = false;
     }
 }

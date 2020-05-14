@@ -1,14 +1,19 @@
-﻿using cakeslice;
+﻿using System.Collections.Generic;
+using cakeslice;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class Wall : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    public static UnityAction<Wall> OnWallClicked;
+    
     [HideInInspector] public int wallId;
     [HideInInspector] public Vector3 position;
     [HideInInspector] public Vector3 eulerAngles;
     [HideInInspector] public float length;
-
+    [HideInInspector] public List<Window> windows = new List<Window>();
+    
     private LineRenderer _line;
     private Outline _outline;
 
@@ -65,13 +70,7 @@ public class Wall : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        switch (ToolsHandler.CurrentTool)
-        {
-            case ToolsHandler.Tool.Eraser:
-                Map.DeleteWall(wallId);
-                Destroy(gameObject);
-                break;
-        }
+        OnWallClicked?.Invoke(this);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
