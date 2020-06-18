@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Floor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    public static UnityAction<Floor> OnFloorClicked;
+    
     [HideInInspector] public int floorId;
     [HideInInspector] public Vector3 position;
     [HideInInspector] public Vector3 size;
@@ -30,13 +33,7 @@ public class Floor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        switch (ToolsHandler.CurrentTool)
-        {
-            case ToolsHandler.Tool.Eraser:
-                Map.DeleteFloor(floorId);
-                Destroy(gameObject);
-                break;
-        }
+        OnFloorClicked?.Invoke(this);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -55,6 +52,6 @@ public class Floor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     private void ResetSelect()
     {
-        _image.color = Color.white;
+        _image.color = new Color(255, 255, 255, 127);
     }
 }

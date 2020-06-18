@@ -21,8 +21,8 @@ namespace States
 
         private void ResetObjectsMenuPos()
         {
-            var newPos = MenuSystem.cameraObj.transform.position + MenuSystem.cameraObj.transform.forward * 11f;
-            newPos.y = 8f;
+            var newPos = MenuSystem.cameraObj.transform.position + MenuSystem.cameraObj.transform.forward * 20f;
+            newPos.y = 10f;
 
             var eulerAngles = MenuSystem.objectsMenu.transform.eulerAngles;
             var newRotation = Quaternion.Euler(new Vector3(eulerAngles.x, MenuSystem.cameraObj.transform.eulerAngles.y,
@@ -71,6 +71,15 @@ namespace States
             
             yield break;
         }
+        
+        public override IEnumerator MaterialBtnClicked(Material material)
+        {
+            HideObjectsMenu();
+
+            MenuSystem.SetState(new ChangingMaterial(MenuSystem, material));
+            
+            yield break;
+        }
 
         public override IEnumerator EditBtnClicked()
         {
@@ -83,7 +92,7 @@ namespace States
         {
             MenuSystem.objectsMenu.SetActive(false);
 
-            MenuSystem.SetState(new ChoosingAction(MenuSystem));
+            MenuSystem.SetState(new MenuClosed(MenuSystem));
 
             yield break;
         }

@@ -5,7 +5,7 @@ public class Reticule : MonoBehaviour
 {
     #region Actions
 
-    public static UnityAction OnWallClicked;
+    public static UnityAction<GameObject> OnWallClicked;
 
     #endregion
 
@@ -73,7 +73,8 @@ public class Reticule : MonoBehaviour
         switch (_currentHit.transform.tag)
         {
             case "Wall":
-                OnWallClicked?.Invoke();
+                Debug.Log("lol");
+                OnWallClicked?.Invoke(_currentHit.transform.gameObject);
 
                 break;
             case "Selectable":

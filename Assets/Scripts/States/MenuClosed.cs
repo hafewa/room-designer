@@ -10,7 +10,6 @@ namespace States
 
         public override IEnumerator Start()
         {
-            MenuSystem.actionsMenu.SetActive(false);
             MenuSystem.objectsMenu.SetActive(false);
             
             yield break;
@@ -18,7 +17,7 @@ namespace States
 
         public override IEnumerator PressTrigger()
         {
-            MenuSystem.SetState(new ChoosingAction(MenuSystem));
+            MenuSystem.SetState(new ChoosingObject(MenuSystem));
             
             yield break;
         }

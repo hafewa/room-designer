@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class WindowPlacer : MonoBehaviour
+public class DoorPlacer : MonoBehaviour
 {
     public GameObject line;
     public Transform reticule;
@@ -10,7 +10,7 @@ public class WindowPlacer : MonoBehaviour
 
     private void Awake()
     {
-        Wall.OnWallClicked += PlaceWindow;
+        Wall.OnWallClicked += PlaceDoor;
     }
 
     private void Update()
@@ -20,9 +20,9 @@ public class WindowPlacer : MonoBehaviour
         _newLine.SetPosition(1, reticule.position);
     }
 
-    private void PlaceWindow(Wall wall)
+    private void PlaceDoor(Wall wall)
     {
-        if (ToolsHandler.CurrentTool != ToolsHandler.Tool.DrawWindow) return;
+        if (ToolsHandler.CurrentTool != ToolsHandler.Tool.DrawDoor) return;
         
         if (_newLine == null)
         {
@@ -45,7 +45,7 @@ public class WindowPlacer : MonoBehaviour
         _newLine.sortingOrder = 2;
         var positions = new[] {start, end};
         _newLine.SetPositions(positions);
-        _newLine.startColor = _newLine.endColor = Color.blue;
+        _newLine.startColor = _newLine.endColor = Color.yellow;
         _newLine.startWidth = _newLine.endWidth = 10;
     }
 }

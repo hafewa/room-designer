@@ -1,12 +1,10 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-public class Window : MonoBehaviour
+public class HoleBase : MonoBehaviour
 {
     [HideInInspector] public float startDistance;
     [HideInInspector] public float endDistance;
-    [HideInInspector] public float length;
-
     private LineRenderer _wall;
     private LineRenderer _line;
 
@@ -17,7 +15,7 @@ public class Window : MonoBehaviour
 
         InitProps();
         
-        _wall.GetComponent<Wall>().windows.Add(this);
+        _wall.GetComponent<Wall>().AddNewHole(this);
     }
 
     private void InitProps()
@@ -39,7 +37,13 @@ public class Window : MonoBehaviour
         }
         startDistance = startDistance / 25 * 10;
         endDistance = endDistance / 25 * 10;
-
-        length = Vector3.Distance(windowStartPos, windowEndPos);
     }
+}
+
+public class Window : HoleBase
+{
+}
+
+public class Door : HoleBase
+{
 }

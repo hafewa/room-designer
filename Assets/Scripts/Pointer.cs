@@ -10,7 +10,7 @@ public class Pointer : MonoBehaviour {
     public Transform reticule;
     
     public static Ray Ray;
-    
+
     private Transform _currentOrigin;
     private GameObject _currentObject;
 

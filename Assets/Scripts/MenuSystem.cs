@@ -1,10 +1,8 @@
-﻿using System;
-using States;
+﻿using States;
 using UnityEngine;
 
 public class MenuSystem : StateMachine
 {
-    public GameObject actionsMenu;
     public GameObject reticule;
     public GameObject cameraObj;
     public GameObject objectsMenu;
@@ -18,8 +16,12 @@ public class MenuSystem : StateMachine
         reticuleObj = reticule.GetComponent<Reticule>();
 
         PlayerEvents.OnTriggerPressed += OnTriggerPressed;
+        PlayerEvents.OnBackPressed += OnBackPressed;
         PlayerEvents.OnTouchPadTouchDown += OnStartMoving;
+        Reticule.OnWallClicked += OnWallClicked;
     }
+
+
 
     private void Start()
     {
@@ -29,27 +31,34 @@ public class MenuSystem : StateMachine
     private void OnDestroy()
     {
         PlayerEvents.OnTriggerPressed -= OnTriggerPressed;
+        PlayerEvents.OnBackPressed -= OnBackPressed;
         PlayerEvents.OnTouchPadTouchDown -= OnStartMoving;
-    }
-
-    public void OnPlaceButtonClicked()
-    {
-        StartCoroutine(State.ChooseObject());
+        Reticule.OnWallClicked -= OnWallClicked;
     }
     
+    private void OnBackPressed()
+    {
+        StartCoroutine(State.PressBack());
+    }
+    
+    private void OnWallClicked(GameObject wall)
+    {
+        StartCoroutine(State.WallClicked(wall));
+    }
+
     public void OnObjectBtnClicked(GameObject objPrefab)
     {
         StartCoroutine(State.ObjectBtnClicked(objPrefab));
     }
     
+    public void OnMaterialBtnClicked(Material material)
+    {
+        StartCoroutine(State.MaterialBtnClicked(material));
+    }
+    
     public void OnCloseButtonClicked()
     {
         StartCoroutine(State.CloseBtnClicked());
-    }
-
-    private void OnChangeColorButton()
-    {
-        StartCoroutine(State.ChangeColor());
     }
 
     private void OnTriggerPressed()

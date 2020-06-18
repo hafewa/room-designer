@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Boo.Lang;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class RoomLoader : MonoBehaviour
@@ -38,15 +37,24 @@ public class RoomLoader : MonoBehaviour
                 new Vector3(-rightPoint, topPoint), // top left vert
                 new Vector3(-rightPoint, -topPoint), // bottom left vert
                 new Vector3(rightPoint, topPoint), // top right vert
-                new Vector3(rightPoint, -topPoint) // bottom right vert
+                new Vector3(rightPoint, -topPoint), // bottom right vert
+                
+                new Vector3(-rightPoint, topPoint, -5), // top left back vert
+                new Vector3(-rightPoint, -topPoint, -5), // bottom left back vert
+                new Vector3(rightPoint, topPoint, -5), // top right back vert
+                new Vector3(rightPoint, -topPoint, -5) // bottom right back vert
             };
 
             const int topWindowPoint = 8;
             const int bottomWindowPoint = -5;
             var tris = new List<int>();
-            if (wallInfo.windows.Count == 0)
+            if (wallInfo.holes.Count == 0)
             {
-                tris.Add(0).Add(1).Add(2).Add(2).Add(1).Add(3);
+                tris.Add(0); tris.Add(1); tris.Add(2);
+                tris.Add(2); tris.Add(1); tris.Add(3);
+                
+                tris.Add(6); tris.Add(5); tris.Add(4);
+                tris.Add(7); tris.Add(5); tris.Add(6);
             }
             else
             {
@@ -54,117 +62,198 @@ public class RoomLoader : MonoBehaviour
                 var prevTopInd = 0;
                 var prevBottomInd = 0;
                 var prevBottomExtraInd = 1;
-                for (var i = 0; i < wallInfo.windows.Count; i++)
+                
+                var prevTopExtraBackInd = 0;
+                var prevTopBackInd = 0;
+                var prevBottomBackInd = 0;
+                var prevBottomExtraBackInd = 5;
+                for (var i = 0; i < wallInfo.holes.Count; i++)
                 {
-                    var window = wallInfo.windows[i];
-                    wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
-                        topWindowPoint)); // left top window vert
-                    var leftTopVertInd = wallVertices.Count - 1;
-                    wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
-                        bottomWindowPoint)); // left bottom window vert
-                    var leftBottomVertInd = leftTopVertInd + 1;
-                    wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
-                        topWindowPoint)); // right top window vert
-                    var rightTopVertInd = leftTopVertInd + 2;
-                    wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
-                        bottomWindowPoint)); // right bottom window vert
-                    var rightBottomVertInd = leftTopVertInd + 3;
-
-                    var rightTopExtraVertInd = 0;
-                    var rightBottomExtraVertInd = 0;
-                    if (i + 1 < wallInfo.windows.Count)
+                    if (wallInfo.holes[i].GetType().ToString() == "Window")
                     {
+                        var window = wallInfo.holes[i];
+                        wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
+                            topWindowPoint)); // left top window vert
+                        var leftTopVertInd = wallVertices.Count - 1;
+                        wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
+                            bottomWindowPoint)); // left bottom window vert
+                        var leftBottomVertInd = leftTopVertInd + 1;
                         wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
-                            topPoint)); // right top extra window vert
-                        rightTopExtraVertInd = leftTopVertInd + 4;
+                            topWindowPoint)); // right top window vert
+                        var rightTopVertInd = leftTopVertInd + 2;
                         wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
-                            -topPoint)); // right bottom extra window vert
-                        rightBottomExtraVertInd = leftTopVertInd + 5;
-                    }
+                            bottomWindowPoint)); // right bottom window vert
+                        var rightBottomVertInd = leftTopVertInd + 3;
+                        
+                        // Back of wall
+                        wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
+                            topWindowPoint, -5)); // left top back window vert
+                        var leftTopBackVertInd = leftTopVertInd + 4;
+                        wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
+                            bottomWindowPoint, -5)); // left bottom window vert
+                        var leftBottomBackVertInd = leftTopVertInd + 5;
+                        wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                            topWindowPoint, -5)); // right top window vert
+                        var rightTopBackVertInd = leftTopVertInd + 6;
+                        wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                            bottomWindowPoint, -5)); // right bottom window vert
+                        var rightBottomBackVertInd = leftTopVertInd + 7;
 
-                    if (i == 0)
-                    {
-                        tris.Add(0).Add(1).Add(leftBottomVertInd);
-                        tris.Add(leftTopVertInd).Add(0).Add(leftBottomVertInd);
-                        tris.Add(leftBottomVertInd).Add(1).Add(rightBottomVertInd);
-
-                        if (i + 1 == wallInfo.windows.Count)
+                        var rightTopExtraVertInd = 0;
+                        var rightBottomExtraVertInd = 0;
+                        var rightTopExtraBackVertInd = 0;
+                        var rightBottomExtraBackVertInd = 0;
+                        if (i + 1 < wallInfo.holes.Count)
                         {
-                            tris.Add(prevTopExtraInd).Add(leftTopVertInd).Add(2);
+                            wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                                topPoint)); // right top extra window vert
+                            rightTopExtraVertInd = leftTopVertInd + 8;
+                            wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                                -topPoint)); // right bottom extra window vert
+                            rightBottomExtraVertInd = leftTopVertInd + 9;
+                            
+                            wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                                topPoint, -5)); // right top extra window vert
+                            rightTopExtraBackVertInd = leftTopVertInd + 10;
+                            wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                                -topPoint, -5)); // right bottom extra window vert
+                            rightBottomExtraBackVertInd = leftTopVertInd + 11;
+                        }
 
-                            tris.Add(2).Add(leftTopVertInd).Add(rightTopVertInd);
-                            tris.Add(rightBottomVertInd).Add(1).Add(3);
+                        if (i == 0)
+                        {
+                            tris.Add(0); tris.Add(1); tris.Add(leftBottomVertInd);
+                            tris.Add(leftTopVertInd); tris.Add(0); tris.Add(leftBottomVertInd);
+                            tris.Add(leftBottomVertInd); tris.Add(1); tris.Add(rightBottomVertInd);
+                            
+                            tris.Add(leftBottomBackVertInd); tris.Add(5); tris.Add(4);  
+                            tris.Add(leftBottomBackVertInd); tris.Add(4); tris.Add(leftTopBackVertInd);
+                            tris.Add(rightBottomBackVertInd); tris.Add(5); tris.Add(leftBottomBackVertInd);
 
-                            tris.Add(2).Add(rightTopVertInd).Add(3);
-                            tris.Add(rightTopVertInd).Add(rightBottomVertInd).Add(3);
+                            if (i + 1 == wallInfo.holes.Count)
+                            {
+                                tris.Add(0); tris.Add(leftTopVertInd); tris.Add(2);
+
+                                tris.Add(2); tris.Add(leftTopVertInd); tris.Add(rightTopVertInd);
+                                tris.Add(rightBottomVertInd); tris.Add(1); tris.Add(3);
+
+                                tris.Add(2); tris.Add(rightTopVertInd); tris.Add(3);
+                                tris.Add(rightTopVertInd); tris.Add(rightBottomVertInd); tris.Add(3);
+                                
+                                tris.Add(6); tris.Add(leftTopBackVertInd); tris.Add(4); 
+                                
+                                tris.Add(rightTopBackVertInd); tris.Add(leftTopBackVertInd); tris.Add(6); 
+                                tris.Add(7); tris.Add(5); tris.Add(rightBottomBackVertInd);
+
+                                tris.Add(7); tris.Add(rightTopBackVertInd); tris.Add(6);
+                                tris.Add(7); tris.Add(rightBottomBackVertInd); tris.Add(rightTopBackVertInd);
+                            }
+                            else
+                            {
+                                tris.Add(0); tris.Add(leftTopVertInd); tris.Add(rightTopExtraVertInd);
+                                tris.Add(rightTopExtraVertInd); tris.Add(leftTopVertInd); tris.Add(rightTopVertInd);
+                                tris.Add(rightBottomVertInd); tris.Add(1); tris.Add(rightBottomExtraVertInd);
+                                
+                                tris.Add(rightTopExtraBackVertInd); tris.Add(leftTopBackVertInd); tris.Add(4);
+                                tris.Add(rightTopBackVertInd); tris.Add(leftTopBackVertInd); tris.Add(rightTopExtraBackVertInd);
+                                tris.Add(rightBottomExtraBackVertInd); tris.Add(5); tris.Add(rightBottomBackVertInd);
+                            }
                         }
                         else
                         {
-                            tris.Add(0).Add(leftTopVertInd).Add(rightTopExtraVertInd);
-                            tris.Add(rightTopExtraVertInd).Add(leftTopVertInd).Add(rightTopVertInd);
-                            tris.Add(rightBottomVertInd).Add(1).Add(rightBottomExtraVertInd);
+                            tris.Add(prevTopExtraInd); tris.Add(prevTopInd); tris.Add(leftTopVertInd); 
+                            tris.Add(leftTopVertInd); tris.Add(prevTopInd); tris.Add(leftBottomVertInd);
+                            tris.Add(leftBottomVertInd); tris.Add(prevTopInd); tris.Add(prevBottomInd);
+                            tris.Add(prevBottomInd); tris.Add(prevBottomExtraInd); tris.Add(leftBottomVertInd);
+                            
+                            tris.Add(leftTopBackVertInd); tris.Add(prevTopBackInd); tris.Add(prevTopExtraBackInd); 
+                            tris.Add(leftBottomBackVertInd); tris.Add(prevTopBackInd); tris.Add(leftTopBackVertInd);
+                            tris.Add(prevBottomBackInd); tris.Add(prevTopBackInd); tris.Add(leftBottomBackVertInd);
+                            tris.Add(leftBottomBackVertInd); tris.Add(prevBottomExtraBackInd); tris.Add(prevBottomBackInd);
+                            if (i + 1 < wallInfo.holes.Count)
+                            {
+                                tris.Add(prevTopExtraInd); tris.Add(leftTopVertInd); tris.Add(rightTopExtraVertInd);
+                                tris.Add(leftBottomVertInd); tris.Add(prevBottomExtraInd); tris.Add(rightBottomExtraVertInd);
+
+                                tris.Add(rightTopExtraVertInd); tris.Add(leftTopVertInd); tris.Add(rightTopVertInd);
+                                tris.Add(rightBottomVertInd); tris.Add(leftBottomVertInd); tris.Add(rightBottomExtraVertInd);
+                                
+                                tris.Add(rightTopExtraBackVertInd); tris.Add(leftTopBackVertInd); tris.Add(prevTopExtraBackInd);
+                                tris.Add(rightBottomExtraBackVertInd); tris.Add(prevBottomExtraBackInd); tris.Add(leftBottomBackVertInd);
+
+                                tris.Add(rightTopBackVertInd); tris.Add(leftTopBackVertInd); tris.Add(rightTopExtraBackVertInd);
+                                tris.Add(rightBottomExtraBackVertInd); tris.Add(leftBottomBackVertInd); tris.Add(rightBottomBackVertInd);
+                            }
+                            else
+                            {
+                                tris.Add(prevTopExtraInd); tris.Add(leftTopVertInd); tris.Add(2);
+                                tris.Add(leftBottomVertInd); tris.Add(prevBottomExtraInd); tris.Add(3);
+                                tris.Add(2); tris.Add(leftTopVertInd); tris.Add(rightTopVertInd);
+                                tris.Add(rightBottomVertInd); tris.Add(leftBottomVertInd); tris.Add(3);
+
+                                tris.Add(2); tris.Add(rightTopVertInd); tris.Add(3);
+                                tris.Add(rightTopVertInd); tris.Add(rightBottomVertInd); tris.Add(3);
+                                
+                                tris.Add(6); tris.Add(leftTopBackVertInd); tris.Add(prevTopExtraBackInd);
+                                tris.Add(7); tris.Add(prevBottomExtraBackInd); tris.Add(leftBottomBackVertInd);
+                                tris.Add(rightTopBackVertInd); tris.Add(leftTopBackVertInd); tris.Add(6);
+                                tris.Add(7); tris.Add(leftBottomBackVertInd); tris.Add(rightBottomBackVertInd);
+
+                                tris.Add(7); tris.Add(rightTopBackVertInd); tris.Add(6);
+                                tris.Add(7); tris.Add(rightBottomBackVertInd); tris.Add(rightTopBackVertInd);
+                            }
                         }
+
+                        prevTopExtraInd = rightTopExtraVertInd;
+                        prevTopInd = rightTopVertInd;
+                        prevBottomInd = rightBottomVertInd;
+                        prevBottomExtraInd = rightBottomExtraVertInd;
+                        
+                        prevTopExtraBackInd = rightTopExtraBackVertInd;
+                        prevTopBackInd = rightTopBackVertInd;
+                        prevBottomBackInd = rightBottomBackVertInd;
+                        prevBottomExtraBackInd = rightBottomExtraBackVertInd;
+
+                        // wall
+                        wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
+                            topWindowPoint, -5)); // left top back vert
+                        var leftTopBackInd = wallVertices.Count - 1;
+                        wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
+                            bottomWindowPoint, -5)); // left bottom back vert
+                        var leftBottomBackInd = leftTopBackInd + 1;
+                        wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                            topWindowPoint, -5)); // right top back vert
+                        var rightTopBackInd = leftTopBackInd + 2;
+                        wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
+                            bottomWindowPoint, -5)); // right bottom back vert
+                        var rightBottomBackInd = leftTopBackInd + 3;
+
+                        // left wall
+                        tris.Add(leftTopVertInd); tris.Add(leftBottomVertInd); tris.Add(leftBottomBackInd);
+                        tris.Add(leftBottomBackInd); tris.Add(leftTopBackInd); tris.Add(leftTopVertInd);
+                        // top wall
+                        tris.Add(leftTopVertInd); tris.Add(leftTopBackInd); tris.Add(rightTopVertInd);
+                        tris.Add(rightTopVertInd); tris.Add(leftTopBackInd); tris.Add(rightTopBackInd);
+                        // right wall
+                        tris.Add(rightTopVertInd); tris.Add(rightTopBackInd); tris.Add(rightBottomBackInd);
+                        tris.Add(rightBottomBackInd); tris.Add(rightBottomVertInd); tris.Add(rightTopVertInd);
+                        // bottom wall
+                        tris.Add(rightBottomVertInd); tris.Add(rightBottomBackInd); tris.Add(leftBottomVertInd);
+                        tris.Add(leftBottomVertInd); tris.Add(rightBottomBackInd); tris.Add(leftBottomBackInd);
                     }
                     else
                     {
-                        tris.Add(prevTopExtraInd).Add(prevTopInd).Add(leftTopVertInd);
-                        tris.Add(leftTopVertInd).Add(prevTopInd).Add(leftBottomVertInd);
-                        tris.Add(leftBottomVertInd).Add(prevTopInd).Add(prevBottomInd);
-                        tris.Add(prevBottomInd).Add(prevBottomExtraInd).Add(leftBottomVertInd);
-                        if (i + 1 < wallInfo.windows.Count)
-                        {
-                            tris.Add(prevTopExtraInd).Add(leftTopVertInd).Add(rightTopExtraVertInd);
-                            tris.Add(leftBottomVertInd).Add(prevBottomExtraInd).Add(rightBottomExtraVertInd);
-
-                            tris.Add(rightTopExtraVertInd).Add(leftTopVertInd).Add(rightTopVertInd);
-                            tris.Add(rightBottomVertInd).Add(leftBottomVertInd).Add(rightBottomExtraVertInd);
-                        }
-                        else
-                        {
-                            tris.Add(prevTopExtraInd).Add(leftTopVertInd).Add(2);
-                            tris.Add(leftBottomVertInd).Add(prevBottomExtraInd).Add(3);
-
-                            tris.Add(2).Add(leftTopVertInd).Add(rightTopVertInd);
-                            tris.Add(rightBottomVertInd).Add(leftBottomVertInd).Add(3);
-
-                            tris.Add(2).Add(rightTopVertInd).Add(3);
-                            tris.Add(rightTopVertInd).Add(rightBottomVertInd).Add(3);
-                        }
+                        
                     }
-
-                    prevTopExtraInd = rightTopExtraVertInd;
-                    prevTopInd = rightTopVertInd;
-                    prevBottomInd = rightBottomVertInd;
-                    prevBottomExtraInd = rightBottomExtraVertInd;
-
-                    // wall
-                    wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
-                        topWindowPoint, -5)); // left top back vert
-                    var leftTopBackInd = wallVertices.Count - 1;
-                    wallVertices.Add(new Vector3(-rightPoint + window.startDistance,
-                        bottomWindowPoint, -5)); // left bottom back vert
-                    var leftBottomBackInd = leftTopBackInd + 1;
-                    wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
-                        topWindowPoint, -5)); // right top back vert
-                    var rightTopBackInd = leftTopBackInd + 2;
-                    wallVertices.Add(new Vector3(-rightPoint + window.endDistance,
-                        bottomWindowPoint, -5)); // right bottom back vert
-                    var rightBottomBackInd = leftTopBackInd + 3;
-
-                    // left wall
-                    tris.Add(leftTopVertInd).Add(leftBottomVertInd).Add(leftBottomBackInd);
-                    tris.Add(leftBottomBackInd).Add(leftTopBackInd).Add(leftTopVertInd);
-                    // top wall
-                    tris.Add(leftTopVertInd).Add(leftTopBackInd).Add(rightTopVertInd);
-                    tris.Add(rightTopVertInd).Add(leftTopBackInd).Add(rightTopBackInd);
-                    // right wall
-                    tris.Add(rightTopVertInd).Add(rightTopBackInd).Add(rightBottomBackInd);
-                    tris.Add(rightBottomBackInd).Add(rightBottomVertInd).Add(rightTopVertInd);
-                    // bottom wall
-                    tris.Add(rightBottomVertInd).Add(rightBottomBackInd).Add(leftBottomVertInd);
-                    tris.Add(leftBottomVertInd).Add(rightBottomBackInd).Add(leftBottomBackInd);
                 }
             }
+            
+            //left wall side
+            tris.Add(5); tris.Add(1); tris.Add(0);
+            tris.Add(0); tris.Add(4); tris.Add(5);
+            // right wall side
+            tris.Add(2); tris.Add(3); tris.Add(7);
+            tris.Add(7); tris.Add(6); tris.Add(2);
 
             msh.vertices = wallVertices.ToArray();
             msh.triangles = tris.ToArray();
@@ -173,6 +262,7 @@ public class RoomLoader : MonoBehaviour
             
             // Set Gazable layer
             wallObj.layer = 9;
+            wallObj.tag = "Wall";
             wallObj.transform.localScale = new Vector3(Map.CellSize, 1, -1);
             wallObj.transform.position = wallInfo.position * Map.CellSize;
             wallObj.transform.eulerAngles = wallInfo.eulerAngles;
@@ -192,6 +282,7 @@ public class RoomLoader : MonoBehaviour
 
             // Set Gazable layer
             floorObj.layer = 9;
+            floorObj.tag = "Wall";
             floorObj.transform.position = floorInfo.position * Map.CellSize;
             floorObj.transform.localScale = new Vector3(floorInfo.size.x * Map.CellSize, floorInfo.size.y, floorInfo.size.z * Map.CellSize);
             floorObj.transform.eulerAngles = new Vector3(0, 90, 0);

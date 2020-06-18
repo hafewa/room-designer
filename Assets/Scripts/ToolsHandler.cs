@@ -12,6 +12,7 @@ public class ToolsHandler : MonoBehaviour
         DrawFloor,
         DrawWall,
         DrawWindow,
+        DrawDoor,
         Eraser
     }
 
@@ -22,15 +23,16 @@ public class ToolsHandler : MonoBehaviour
     private LinePlacer _linePlacer;
     private FloorPlacer _floorPlacer;
     private WindowPlacer _windowPlacer;
+    private DoorPlacer _doorPlacer;
     private Eraser _eraser;
 
     #endregion
 
     #region ToolBtns
 
-    public Image drawWallBtn;
-    public Image drawFloorBtn;
-    public Image eraserBtn;
+    public Button drawWallBtn;
+    public Button drawFloorBtn;
+    public Button eraserBtn;
 
     #endregion
 
@@ -40,6 +42,7 @@ public class ToolsHandler : MonoBehaviour
         _eraser = drawingBoard.GetComponent<Eraser>();
         _linePlacer = drawingBoard.GetComponent<LinePlacer>();
         _windowPlacer = drawingBoard.GetComponent<WindowPlacer>();
+        _doorPlacer = drawingBoard.GetComponent<DoorPlacer>();
         _floorPlacer = drawingBoard.GetComponent<FloorPlacer>();
         
         ResetAll();
@@ -62,6 +65,11 @@ public class ToolsHandler : MonoBehaviour
                 break;
             case Tool.DrawWindow:
                 _windowPlacer.enabled = true;
+                SetSelected(drawWallBtn);
+
+                break;
+            case Tool.DrawDoor:
+                _doorPlacer.enabled = true;
                 SetSelected(drawWallBtn);
 
                 break;
@@ -100,25 +108,28 @@ public class ToolsHandler : MonoBehaviour
         Map.WallHeight = float.Parse(heightStr, CultureInfo.InvariantCulture.NumberFormat) * 10;
     }
 
-    private void SetSelected(Graphic btn)
+    private static void SetSelected(Selectable btn)
     {
-        var color = btn.color;
-        color.a = 1f;
-
-        btn.color = color;
+        var colors = btn.colors;
+        var colorsNormalColor = colors.normalColor;
+        colors.normalColor = new Color(colorsNormalColor.r, colorsNormalColor.g, colorsNormalColor.b, 1f);
+        btn.colors = colors;
     }
 
     private void ResetAll()
     {
-        var color = drawWallBtn.color;
-        color.a = 0f;
-        drawWallBtn.color = color;
-        drawFloorBtn.color = color;
-        eraserBtn.color = color;
+        var colors = drawWallBtn.colors;
+        var colorsNormalColor = colors.normalColor;
+        colors.normalColor = new Color(colorsNormalColor.r, colorsNormalColor.g, colorsNormalColor.b, 0f);
+        
+        drawWallBtn.colors = colors;
+        drawFloorBtn.colors = colors;
+        eraserBtn.colors = colors;
 
         _linePlacer.enabled = false;
         _floorPlacer.enabled = false;
         _eraser.enabled = false;
         _windowPlacer.enabled = false;
+        _doorPlacer.enabled = false;
     }
 }

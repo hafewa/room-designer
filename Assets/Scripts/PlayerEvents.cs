@@ -12,6 +12,7 @@ public class PlayerEvents : MonoBehaviour
     public static UnityAction OnTouchPadTouchDown = null;
     public static UnityAction OnTouchPadTouchUp = null;
     public static UnityAction OnTriggerPressed = null;
+    public static UnityAction OnBackPressed = null;
     public static UnityAction<OVRInput.Controller, GameObject> OnControllerSource = null;
 
     #endregion
@@ -128,6 +129,12 @@ public class PlayerEvents : MonoBehaviour
             Input.GetMouseButtonDown(0))
         {
             OnTriggerPressed?.Invoke();
+        }
+        
+        if (OVRInput.GetDown(OVRInput.Button.Back) ||
+            Input.GetMouseButtonDown(1))
+        {
+            OnBackPressed?.Invoke();
         }
 
         if (Input.GetKeyDown(KeyCode.W))

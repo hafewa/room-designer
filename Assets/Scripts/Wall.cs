@@ -12,8 +12,8 @@ public class Wall : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     [HideInInspector] public Vector3 position;
     [HideInInspector] public Vector3 eulerAngles;
     [HideInInspector] public float length;
-    [HideInInspector] public List<Window> windows = new List<Window>();
-    
+    [HideInInspector] public List<HoleBase> holes = new List<HoleBase>();
+
     private LineRenderer _line;
     private Outline _outline;
 
@@ -91,5 +91,31 @@ public class Wall : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public void ResetSelect()
     {
         _outline.enabled = false;
+    }
+
+    public void AddNewHole(HoleBase newHole)
+    {
+        if (holes.Count == 0)
+        {
+            holes.Add(newHole);
+            return;
+        }
+        
+        var insertIndex = -1;
+        for (var i = 0; i < holes.Count; i++)
+        {
+            if (newHole.startDistance >= holes[i].startDistance) continue;
+            
+            insertIndex = i;
+            break;
+        }
+        
+        if (insertIndex == -1)
+        {
+            holes.Add(newHole);
+            return;
+        }
+        
+        holes.Insert(insertIndex, newHole);
     }
 }

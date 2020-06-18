@@ -35,7 +35,17 @@ public abstract class State
         yield break;
     }
     
+    public virtual IEnumerator PressBack()
+    {
+        yield break;
+    }
+    
     public virtual IEnumerator ObjectBtnClicked(GameObject objPrefab)
+    {
+        yield break;
+    }
+    
+    public virtual IEnumerator MaterialBtnClicked(Material material)
     {
         yield break;
     }
@@ -46,6 +56,11 @@ public abstract class State
     }
 
     public virtual IEnumerator Move()
+    {
+        yield break;
+    }
+    
+    public virtual IEnumerator WallClicked(GameObject wall)
     {
         yield break;
     }
